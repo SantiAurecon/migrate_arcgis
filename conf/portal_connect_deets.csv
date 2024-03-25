@@ -1,0 +1,7 @@
+portal_alias,url,usr,pwd,app_id
+ISP,https://ispgeospatial.com/portal,santiago.patino@aurecongroup.com,,
+ISP_OAUTH2,https://ispgeospatial.com/portal,,,K7qStPWY3MPp0b8z
+Geoportal_DEV,https://geoportaldev.aurecongroup.com/portal,,,tkHw4yqaZxuaNNSB
+PROD,https://geoportal.aurecongroup.com/portal,,,
+DIGITAL_DEV,https://ppgeospatial-dev.aurecongroup.digital/arcgis/home/,,,ynHaDt7Xb3r9drJg
+DIGITAL_DEV_UP,https://ppgeospatial-dev.aurecongroup.digital/arcgis/home/,ppgeospatial,<password_here>,
