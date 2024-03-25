@@ -4,38 +4,10 @@ import logging
 import os
 import sys
 import time
-
 import pandas as pd
 import requests
 from arcgis import GIS
 from arcgis.features import FeatureLayer, FeatureSet, FeatureLayerCollection
-
-# Logging
-SaveLogsTo = '../Logs'
-logging.basicConfig(level=logging.INFO)
-logging.getLogger('arcgis.gis._impl').setLevel(logging.WARNING)
-logger = logging.getLogger(__name__)
-logFileName = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
-fileHandler = logging.handlers.RotatingFileHandler('{}/{}.log'.format(SaveLogsTo, logFileName), maxBytes=100000,
-                                                   backupCount=5)
-formatter = logging.Formatter(
-    '%(asctime)s %(levelname)s %(relativeCreated)d \n%(filename)s %(module)s %(funcName)s %(lineno)d \n%(message)s\n')
-fileHandler.setFormatter(formatter)
-logger.addHandler(fileHandler)
-logger.info('Script Starting at {}'.format(str(datetime.datetime.now())))
-
-# Connections details
-portals_csv = r"C:\GIS\code\portalman\conf\portal_connect_deets.csv"
-
-# '../Conf/portal_connect_deets.csv'
-
-# Parameters
-usr_args_from_gis_alias_name = 'ISP_OAUTH2'
-usr_args_to_gis_alias_name = 'DIGITAL_DEV_UP'
-migration_name = "ISP_to_DIGITAL_DEV"
-usr_args_process_username = ''
-migrate_item_type = 'Feature Layer'
-
 
 def get_photo_encode(url, token):
     payload = {'token': token, 'f': 'json'}
@@ -910,55 +882,23 @@ def copy_hosted_featurelayer(item_id, source_gis, target_gis):  # featurelayer_d
         # logger.error(f"Exception Traceback instruction: {sys.exc_info()[2].tb_lasti}")
 
 
-if __name__ == '__main__':
+def main(migrate_itemids,exclude_list, source_gis, target_gis ):
     try:
         start_time = str(datetime.datetime.now().strftime('%d%m%Y'))
         logger.info(f'Migration {migration_name} started at {start_time}')
 
-        # connect
-        source_gis, target_gis = migration_connects(portals_csv, usr_args_from_gis_alias_name,
-                                                    usr_args_to_gis_alias_name)
 
-        # get content itemids # exclude dummy =bb2e4ed52cad420dbd8d4bfa9f699209
-        exclude_list = ['a01c570fb99a4520a8124c99fb2ca8a0',
-                        '38c1e4ebb8b74743a20de3901a298fa6', '0ff35c341c344defbe088b291a6c948d',
-                        '2c0c277614994e7891d2ba1cf7f77a70',
-                        '417993ccc4824174899d66586b286a8c', 'ade65c8326d24b63b65df84330b8e63d',
-                        '0ff35c341c344defbe088b291a6c948d',
-                        '0ff35c341c344defbe088b291a6c948d', '794793d6b2834897bf6c85c0a2106327',
-                        'af51c6c82b7446c59cd44e54dd819055',
-                        'ade65c8326d24b63b65df84330b8e63d', '8650d9d1cb06444ea87651b66e757864',
-                        '417993ccc4824174899d66586b286a8c', 'b650e8cd342f4cdbb5fca7f966f8224d']  # ,
+
+ # ,
         # ]
 
-        migrate_itemids = ['bb2e4ed52cad420dbd8d4bfa9f699209']
-            # 'b650e8cd342f4cdbb5fca7f966f8224d', '2c0c277614994e7891d2ba1cf7f77a70',
-            # '23c2d75e6ac64705958b9da3abb63d75',
-            # 'a8a254a81118470db2bed70de274240d']  # todo: delete , with related view if any,retry 8650d9d1cb06444ea87651b66e757864
+        # 'b650e8cd342f4cdbb5fca7f966f8224d', '2c0c277614994e7891d2ba1cf7f77a70',
+        # '23c2d75e6ac64705958b9da3abb63d75',
+        # 'a8a254a81118470db2bed70de274240d']  # todo: delete , with related view if any,retry 8650d9d1cb06444ea87651b66e757864
 
 
-        test_only = ['bb2e4ed52cad420dbd8d4bfa9f699209']
         process_itemids_list = [x for x in migrate_itemids if x not in exclude_list]
 
-        # if migrate_item_type == 'Feature Layer':
-        #     item_ids_to_migrate = migration_get_item_ids(source_gis, migrate_item_type, 'Hosted Service',
-        #                                                  usr_args_process_username,
-        #                                                  excludes=exclude_list)
-        #     migrate_itemids.extend(item_ids_to_migrate)
-        #
-        # elif migrate_item_type in ['Web Map', 'Dashboard', 'Web Mapping Application', 'StoryMap']:
-        #     item_ids_to_migrate = migration_get_item_ids(source_gis, migrate_item_type, '', usr_args_process_username,
-        #                                                  excludes=exclude_list)
-        #     migrate_itemids.extend(item_ids_to_migrate)
-
-        # sorted #todo
-        # items_list = get_items_list_itemids(source_gis, migrate_itemids)
-        #
-        # sorted_list = sorted([fs for fs in items_list
-        #                       if fs.itemid not in exclude_list], key=lambda fs: fs.size, reverse=False)
-        #
-        # for item in sorted_list:
-        #     item_id = item.itemid
         print(f"Items to process: {len(process_itemids_list)}")
         print(f"Items : {process_itemids_list}")
         for item_id in process_itemids_list:  # ['38c1e4ebb8b74743a20de3901a298fa6']: #migrate_itemids: ## ['375ccef512c64a599c3e3a8d260aa7c5']:  # ['d0cd7a294b3a43f0b37cce851e7ca6df'] ['d0cd7a294b3a43f0b37cce851e7ca6df']: migrate_itemid
@@ -968,11 +908,50 @@ if __name__ == '__main__':
     except Exception as e:
         print(f"Exception: {e.args}. Continuing with next {migrate_item_type}...")
         # continue
-# elif migrate_item_type == 'Web Map':
-# if web_map_has_hosted_only(process_item, source):
-#     print("Web Map contains hosted layers only. Cloning...")
-#     clone_webmap(process_item, source, target)
-# else:
-#     continue
-# elif migrate_item_type in ['Dashboard', 'StoryMap', 'Web Mapping Application']:
-# clone_webapp(process_item, source, target)
+
+
+# Connections details
+portals_csv = r"C:\GIS\code\migrate_arcgis\conf\portal_connect_deets.csv"
+
+# Logging
+SaveLogsTo = r"C:\GIS\code\migrate_arcgis\Logs" # '../Logs'
+logging.basicConfig(level=logging.INFO)
+logging.getLogger('arcgis.gis._impl').setLevel(logging.WARNING)
+logger = logging.getLogger(__name__)
+logFileName = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
+fileHandler = logging.handlers.RotatingFileHandler('{}/{}.log'.format(SaveLogsTo, logFileName), maxBytes=100000,
+                                                   backupCount=5)
+formatter = logging.Formatter(
+    '%(asctime)s %(levelname)s %(relativeCreated)d \n%(filename)s %(module)s %(funcName)s %(lineno)d \n%(message)s\n')
+fileHandler.setFormatter(formatter)
+logger.addHandler(fileHandler)
+logger.info('Script Starting at {}'.format(str(datetime.datetime.now())))
+
+
+# Parameters
+usr_args_from_gis_alias_name = 'ISP_OAUTH2'
+usr_args_to_gis_alias_name = 'DIGITAL_DEV_UP'
+migration_name = "ISP_to_DIGITAL_DEV"
+usr_args_process_username = ''
+migrate_item_type = 'Feature Layer'
+
+usr_args_migrate_itemids = ['bb2e4ed52cad420dbd8d4bfa9f699209']
+
+exclude_list = ['a01c570fb99a4520a8124c99fb2ca8a0',
+                '38c1e4ebb8b74743a20de3901a298fa6', '0ff35c341c344defbe088b291a6c948d',
+                '2c0c277614994e7891d2ba1cf7f77a70',
+                '417993ccc4824174899d66586b286a8c', 'ade65c8326d24b63b65df84330b8e63d',
+                '0ff35c341c344defbe088b291a6c948d',
+                '0ff35c341c344defbe088b291a6c948d', '794793d6b2834897bf6c85c0a2106327',
+                'af51c6c82b7446c59cd44e54dd819055',
+                'ade65c8326d24b63b65df84330b8e63d', '8650d9d1cb06444ea87651b66e757864',
+                '417993ccc4824174899d66586b286a8c', 'b650e8cd342f4cdbb5fca7f966f8224d']
+
+if __name__ == '__main__':
+
+    source_gis, target_gis = migration_connects(portals_csv, usr_args_from_gis_alias_name,
+                                                usr_args_to_gis_alias_name)
+
+    main(usr_args_migrate_itemids,exclude_list, source_gis, target_gis)
+
+
