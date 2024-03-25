@@ -884,18 +884,6 @@ def copy_hosted_featurelayer(item_id, source_gis, target_gis):  # featurelayer_d
 
 def main(migrate_itemids,exclude_list, source_gis, target_gis ):
     try:
-        start_time = str(datetime.datetime.now().strftime('%d%m%Y'))
-        logger.info(f'Migration {migration_name} started at {start_time}')
-
-
-
- # ,
-        # ]
-
-        # 'b650e8cd342f4cdbb5fca7f966f8224d', '2c0c277614994e7891d2ba1cf7f77a70',
-        # '23c2d75e6ac64705958b9da3abb63d75',
-        # 'a8a254a81118470db2bed70de274240d']  # todo: delete , with related view if any,retry 8650d9d1cb06444ea87651b66e757864
-
 
         process_itemids_list = [x for x in migrate_itemids if x not in exclude_list]
 
@@ -948,10 +936,20 @@ exclude_list = ['a01c570fb99a4520a8124c99fb2ca8a0',
                 '417993ccc4824174899d66586b286a8c', 'b650e8cd342f4cdbb5fca7f966f8224d']
 
 if __name__ == '__main__':
+    start_time = datetime.datetime.now()
+    print_time= start_time.strftime('%d%m%Y_%H%M%S')
+    logger.info('Migration {0} started at {1}'.format(migration_name, start_time.strftime('%d%m%Y_%H%M%S')))
 
-    source_gis, target_gis = migration_connects(portals_csv, usr_args_from_gis_alias_name,
-                                                usr_args_to_gis_alias_name)
+    source_gis, target_gis = migration_connects(portals_csv, usr_args_from_gis_alias_name, usr_args_to_gis_alias_name)
 
-    main(usr_args_migrate_itemids,exclude_list, source_gis, target_gis)
+    logger.info(f'Connected to source, target successfully')
+
+    #main(usr_args_migrate_itemids,exclude_list, source_gis, target_gis)
+
+    end_time = datetime.datetime.now()
+
+    logger.info('Migration {0} ended at {1} ({2} s)'.format(migration_name,end_time.strftime('%d%m%Y_%H%M%S'), end_time - start_time))
+
+    print(f'Migration done in {end_time - start_time} s')
 
 
